@@ -1,0 +1,99 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management WebApp</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>File Management System</h1>
+        <button id="openFileSelectorButton">Select File</button>
+        <div id="fileSelectorPopup" class="file-selector-popup">
+            <div class="file-selector-header">
+                <h2>Files</h2>
+                <button id="closeFileSelectorButton">Close</button>
+            </div>
+            <div class="file-list">
+                <ul id="files"></ul>
+                <button id="openFileButton">Open File</button>
+                <button onclick="createNewFile()">Create New File</button>
+                <button id="createDirectoryButton">Create New Directory</button>
+            </div>
+        </div>
+        <div class="editor">
+            <h2>File Editor:</h2>
+            <input type="text" id="filename" placeholder="Enter filename" />
+            <div class="language-selector">
+                <label for="languageDropdown">Select Language: </label>
+                <select id="languageDropdown">
+                    <option value="plaintext">Plaintext</option>
+                    <option value="gcode">G-code</option>
+                    <option value="python">Python</option>
+                    <option value="opensbp">OpenSBP</option>
+                </select>
+                <button id="runCodeButton">Execute Script</button>
+            </div>
+            <div id="editor" style="height: 400px; border: 1px solid #ccc;"></div>
+            <div id="outputPane">
+                <h3>Output</h3>
+                <pre id="output"></pre>
+            </div>
+            <script defer>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const runCodeButton = document.getElementById('runCodeButton');
+                    if (runCodeButton) {
+                        runCodeButton.addEventListener('click', runCode);
+                    }
+                });
+        
+                function runCode() {
+                    const editorContent = window.editor.getValue();
+                    const language = document.getElementById('languageDropdown').value;
+                    const outputPane = document.getElementById('output');
+        
+                    switch (language) {
+                        case 'python':
+                            runPythonCode(editorContent, outputPane);
+                            break;
+                        case 'plaintext':
+                        case 'gcode':
+                        case 'opensbp':
+                            outputPane.textContent = 'Cannot execute this type of file. Please select a supported language.';
+                            break;
+                        default:
+                            outputPane.textContent = 'Running code is not supported for the selected language.';
+                    }
+                }
+        
+                function runPythonCode(code, outputPane) {
+                    fetch('/api/run-python', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            outputPane.textContent = data.output;
+                        } else {
+                            outputPane.textContent = `Error: ${data.error}`;
+                        }
+                    })
+                    .catch(error => {
+                        outputPane.textContent = `Error running Python code: ${error}`;
+                    });
+                }
+            </script>
+            <button onclick="saveFile()">Save File</button>
+            <button onclick="deleteFile()">Delete File</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+    "name": "test_fileloader",
+    "license": "MIT",
+    "id": "test_fileloader",
+    "main": "./index.html",
+    "icon": "icon.png",
+    "icon_color": "#360d61",
+    "version": "0.0.1",
+    "author": "Joshua Ayers",
+    "description": "example of file loading ui and client side behavior"
+  }
+  
